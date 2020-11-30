@@ -1,36 +1,53 @@
-import logo from './logo.svg';
-import './App.css';
-import firebase from './services/firebaseConnect';
-import {  Form } from 'react-bootstrap';
-import { Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import React, { useLayoutEffect, useState } from 'react'
+import { HashRouter, Switch, Route, Redirect } from 'react-router-dom'
+import Login from './pages/Login'
+import SignUp from './pages/SignUp'
+import Menu from './pages/NavPagesControl'
+import Firebase from './services/firebaseConnect'
+import Wellcome from './pages/Wellcome'
 
 
+export default function App() {
 
-function App() {
-  
+  const [user, setUser] = useState(null)
+
+  useLayoutEffect(() => {
+    Firebase
+      .auth()
+      .onAuthStateChanged(user => {
+        if (user !== null) {
+          setUser(user.uid)
+        } else {
+          setUser(null)
+        }
+      })
+
+
+  }, [])
+
+  const PrivateRoute = ({ component: Component }) => {
+    return <Route
+      render={(props => {
+        let con = sessionStorage.getItem('uuid');
+        
+        if (con) {
+          return <Component {...props} />
+        } else {
+          return <Redirect to={{ pathname: "/" }} />
+        }
+      })}
+    />
+  }
   return (
-<Form>
-  <Form.Group controlId="formBasicEmail">
-    <Form.Label>Email address</Form.Label>
-    <Form.Control type="email" placeholder="Enter email" />
-    <Form.Text className="text-muted">
-      We'll never share your email with anyone else.
-    </Form.Text>
-  </Form.Group>
+    <HashRouter>
+      <Switch>
+        <Route path="/" exact={true} component={Login} />
+        <Route path="/signUp" component={SignUp} />
+        <PrivateRoute path="/menu" component={Menu} />
+        <PrivateRoute path="/wellcome" component={Wellcome} />
+      </Switch>
 
-  <Form.Group controlId="formBasicPassword">
-    <Form.Label>Password</Form.Label>
-    <Form.Control type="password" placeholder="Password" />
-  </Form.Group>
-  <Form.Group controlId="formBasicCheckbox">
-    <Form.Check type="checkbox" label="Check me out" />
-  </Form.Group>
-  <Button variant="primary" type="submit">
-    Submit
-  </Button>
-</Form>
-  );
+    </HashRouter>
+  )
 }
-
-export default App;
