@@ -10,7 +10,7 @@
 /coverage
 
 #ConfigProject
-/src/services/firebaseConfig.js
+#/src/services/firebaseConfig.js
 
 
 # production
